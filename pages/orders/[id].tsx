@@ -27,7 +27,7 @@ const OrderPage = () => {
       <Chip
         sx={{ mb: 2 }}
         label='Pendiente de pago'
-        variant='outlined'
+        variant='filled'
         color='error'
         icon={<CreditCardOutlined />}
       />
@@ -79,12 +79,12 @@ const OrderPage = () => {
                 <Chip
                   sx={{ mb: 2 }}
                   label='Orden ya fue pagada'
-                  variant='outlined'
+                  variant='filled'
                   color='success'
                   icon={<CreditScoreOutlined />}
                 />
                 <NextLink href='/checkout' passHref>
-                  <Button color='secondary' className='circular-btn' fullWidth>
+                  <Button color='secondary'  variant='contained' className='circular-btn' fullWidth>
                     Pagar
                   </Button>
                 </NextLink>

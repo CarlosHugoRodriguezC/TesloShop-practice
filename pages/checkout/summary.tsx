@@ -64,7 +64,7 @@ const summary = () => {
                   mt: 3,
                 }}>
                 <NextLink href='/checkout' passHref>
-                  <Button color='secondary' className='circular-btn' fullWidth>
+                  <Button color='secondary'  variant='contained' className='circular-btn' fullWidth>
                     Confirmar Orden
                   </Button>
                 </NextLink>

@@ -49,14 +49,14 @@ export const lightTheme = createTheme({
 
     MuiButton: {
       defaultProps: {
-        variant: 'contained',
-        size: 'small',
+        variant: 'text',
+        size: 'large',
         disableElevation: true,
       },
       styleOverrides: {
         root: {
-          backgroundColor: 'white',
-          color: 'black',
+          // backgroundColor: 'white',
+          // color: 'black',
           textTransform: 'none',
           boxShadow: 'none',
           borderRadius: 10,
@@ -65,6 +65,7 @@ export const lightTheme = createTheme({
             transition: 'all 0.3s ease-in-out',
           },
         },
+
       },
     },
 

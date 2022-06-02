@@ -34,7 +34,7 @@ const ProductPage = () => {
               />
             </Box>
 
-            <Button color='secondary' className='circular-btn'>
+            <Button color='secondary'  variant='contained' className='circular-btn'>
               Agregar al carrito
             </Button>
 

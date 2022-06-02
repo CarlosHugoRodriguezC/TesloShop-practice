@@ -39,8 +39,8 @@ const CartPage = () => {
                 sx={{
                   mt: 3,
                 }}>
-                <NextLink href='/checkout' passHref>
-                  <Button color='secondary' className='circular-btn' fullWidth>
+                <NextLink href='/checkout/address' passHref>
+                  <Button color='secondary'  variant='contained' className='circular-btn' fullWidth>
                     Checkout
                   </Button>
                 </NextLink>
