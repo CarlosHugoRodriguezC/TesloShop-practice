@@ -1,12 +1,14 @@
-import {
-  Typography,
-} from '@mui/material';
 import type { NextPage } from 'next';
+import { Typography } from '@mui/material';
 import { ShopLayout } from '../components/layouts';
 import { ProductList } from '../components/products';
-import { initialData } from '../database/products';
+import { FullScreenLoading } from '../components/ui';
+
+import { useProducts } from '../hooks';
+
 
 const Home: NextPage = () => {
+  const { products, isLoading } = useProducts('/products');
   return (
     <ShopLayout
       title={'Teslo-Shop - Home'}
@@ -18,7 +20,7 @@ const Home: NextPage = () => {
         Todos los productos
       </Typography>
 
-      <ProductList products={initialData.products} />
+      {isLoading ? <FullScreenLoading /> : <ProductList products={products} />}
     </ShopLayout>
   );
 };

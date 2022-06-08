@@ -11,7 +11,7 @@ export const ProductSizeSelector: FC<Props> = ({ selectedSize, sizes }) => {
   return (
     <Box>
       {sizes.map((size) => (
-        <Button key={size} color='info' variant={ selectedSize === size ? 'contained': 'text' } size='small'>{size}</Button>
+        <Button key={size} color={selectedSize === size ? 'primary': 'info'}  size='small'>{size}</Button>
       ))}
     </Box>
   );
