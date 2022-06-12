@@ -40,7 +40,11 @@ const CartPage = () => {
                   mt: 3,
                 }}>
                 <NextLink href='/checkout/address' passHref>
-                  <Button color='secondary'  variant='contained' className='circular-btn' fullWidth>
+                  <Button
+                    color='secondary'
+                    variant='contained'
+                    className='circular-btn'
+                    fullWidth>
                     Checkout
                   </Button>
                 </NextLink>

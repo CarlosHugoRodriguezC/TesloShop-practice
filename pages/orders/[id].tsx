@@ -73,7 +73,11 @@ const OrderPage = () => {
                 sx={{
                   mt: 3,
                 }}>
-                <Typography variant='h4' component='h4' fontWeight={600} sx={{mb: 5}}>
+                <Typography
+                  variant='h4'
+                  component='h4'
+                  fontWeight={600}
+                  sx={{ mb: 5 }}>
                   Pagar
                 </Typography>
                 <Chip
@@ -84,7 +88,11 @@ const OrderPage = () => {
                   icon={<CreditScoreOutlined />}
                 />
                 <NextLink href='/checkout' passHref>
-                  <Button color='secondary'  variant='contained' className='circular-btn' fullWidth>
+                  <Button
+                    color='secondary'
+                    variant='contained'
+                    className='circular-btn'
+                    fullWidth>
                     Pagar
                   </Button>
                 </NextLink>
