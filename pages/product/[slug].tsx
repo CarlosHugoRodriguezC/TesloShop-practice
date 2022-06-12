@@ -1,5 +1,7 @@
-import { Box, Button, Grid, Typography } from '@mui/material';
-import { NextPage } from 'next';
+import { useState, useContext } from 'react';
+import { GetStaticPaths, GetStaticProps, NextPage } from 'next';
+
+import { Box, Button, Chip, Grid, Typography } from '@mui/material';
 import { ShopLayout } from '../../components/layouts';
 import {
   ProductSizeSelector,
@@ -7,7 +9,10 @@ import {
 } from '../../components/products';
 import { ItemCounter } from '../../components/ui';
 import { dbProducts } from '../../database';
-import { IProduct } from '../../interfaces';
+import { ICartProduct, IProduct } from '../../interfaces';
+import { ISizes } from '../../interfaces/products';
+import { CartContext } from '../../context/';
+import { useRouter } from 'next/router';
 
 // const product = initialData.products[0];
 interface Props {
@@ -15,6 +20,33 @@ interface Props {
 }
 
 const ProductPage: NextPage<Props> = ({ product }) => {
+  const router = useRouter();
+  const { addProductToCart } = useContext(CartContext);
+  const [tempCartProduct, setTempCartProduct] = useState<ICartProduct>({
+    _id: product._id,
+    image: product.images[0],
+    price: product.price,
+    size: undefined,
+    slug: product.slug,
+    title: product.title,
+    gender: product.gender,
+    quantity: 1,
+  });
+
+  const selectedSize = (size: ISizes) => {
+    setTempCartProduct((current) => ({ ...current, size }));
+  };
+  const onUpdatedValue = (value: number) => {
+    console.log(value, product.inStock);
+    setTempCartProduct((current) => ({ ...current, quantity: value }));
+  };
+  const onAddProduct = () => {
+    console.log(tempCartProduct);
+    if (!tempCartProduct.size) return;
+    addProductToCart(tempCartProduct);
+    router.push('/cart');
+  };
+
   return (
     <ShopLayout title={product.title} pageDescription={product.description}>
       <Grid container spacing={3}>
@@ -32,19 +64,35 @@ const ProductPage: NextPage<Props> = ({ product }) => {
 
             <Box sx={{ my: 2 }}>
               <Typography variant='subtitle2'>Cantidad</Typography>
-              <ItemCounter />
+              <ItemCounter
+                value={tempCartProduct.quantity}
+                onUpdatedValue={onUpdatedValue}
+                minValue={1}
+                maxValue={product.inStock}
+              />
               <ProductSizeSelector
-                selectedSize={product.sizes[0]}
+                selectedSize={tempCartProduct.size}
                 sizes={product.sizes}
+                onSelectedSize={(size) => {
+                  selectedSize(size);
+                }}
               />
             </Box>
 
-            <Button
-              color='secondary'
-              variant='contained'
-              className='circular-btn'>
-              Agregar al carrito
-            </Button>
+            {product.inStock > 0 ? (
+              <Button
+                onClick={onAddProduct}
+                color='secondary'
+                variant='contained'
+                disabled={!tempCartProduct.size}
+                className='circular-btn'>
+                {tempCartProduct.size
+                  ? 'Agregar al carrito'
+                  : 'Selecciona una talla'}
+              </Button>
+            ) : (
+              <Chip color='error' variant='outlined' label='Sin Stock' />
+            )}
 
             {/* <Chip label='No hay disponibles' color='error' variant="outlined" /> */}
 
@@ -84,7 +132,6 @@ const ProductPage: NextPage<Props> = ({ product }) => {
 // };
 
 // You should use getStaticPaths if you’re statically pre-rendering pages that use dynamic routes
-import { GetStaticPaths } from 'next';
 
 export const getStaticPaths: GetStaticPaths = async (ctx) => {
   const slugs = await dbProducts.getAllProductSlugs();
@@ -100,13 +147,12 @@ export const getStaticPaths: GetStaticPaths = async (ctx) => {
 //- The data comes from a headless CMS.
 //- The data can be publicly cached (not user-specific).
 //- The page must be pre-rendered (for SEO) and be very fast — getStaticProps generates HTML and JSON files, both of which can be cached by a CDN for performance.
-import { GetStaticProps } from 'next';
 
 export const getStaticProps: GetStaticProps = async ({ params }) => {
   // your fetch function here
   const { slug = '' } = params as { slug: string };
   const product = await dbProducts.getProductBySlug(slug);
-//  console.log(product);
+  //  console.log(product);
   if (!product) {
     return {
       redirect: {

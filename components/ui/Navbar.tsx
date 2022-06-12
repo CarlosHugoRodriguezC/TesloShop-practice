@@ -19,11 +19,11 @@ import NextLink from 'next/link';
 import { useRouter } from 'next/router';
 
 import React, { useContext, useState } from 'react';
-import { UiContext } from '../../context';
+import { CartContext, UiContext } from '../../context';
 
 export const Navbar = () => {
   const { route, ...router } = useRouter();
-
+  const { numberOfItems  } = useContext(CartContext);
   const { toggleMenu } = useContext(UiContext);
 
   const [searchTerm, setSearchTerm] = useState('');
@@ -152,7 +152,7 @@ export const Navbar = () => {
         <NextLink href='/cart' passHref>
           <Link>
             <IconButton>
-              <Badge badgeContent={4} color={'secondary'}>
+              <Badge badgeContent={numberOfItems > 9 ? '9+': numberOfItems} color={'secondary'}>
                 <ShoppingCart />
               </Badge>
             </IconButton>
