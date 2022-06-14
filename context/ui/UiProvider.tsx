@@ -1,5 +1,5 @@
-import { FC, PropsWithChildren, useState } from 'react';
-import { UiContext } from './';
+import { FC, PropsWithChildren, useReducer } from 'react';
+import { UiContext, uiReducer } from './';
 
 export interface UiState {
   isMenuOpen: boolean;
@@ -10,11 +10,11 @@ const UI_INITIAL_STATE: UiState = {
 };
 
 export const UiProvider: FC<PropsWithChildren<{}>> = ({ children }) => {
-  const [state, setState] = useState(UI_INITIAL_STATE);
+  const [state, dispatch] = useReducer(uiReducer, UI_INITIAL_STATE);
 
   const toggleMenu = () => {
-    setState({
-      isMenuOpen: !state.isMenuOpen,
+    dispatch({
+      type: '[UI] - Toggle Menu',  
     });
   };
 
