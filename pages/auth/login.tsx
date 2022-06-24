@@ -1,41 +1,129 @@
-import React from 'react';
-import { AuthLayout } from '../../components/layouts';
-import { Box, Button, Grid, Link, TextField, Typography } from '@mui/material';
+import React, { useContext, useState } from 'react';
 import NextLink from 'next/link';
+import {
+  Box,
+  Button,
+  Chip,
+  Grid,
+  Link,
+  TextField,
+  Typography,
+} from '@mui/material';
+import { useForm } from 'react-hook-form';
+import { AuthLayout } from '../../components/layouts';
+import { validations } from '../../utils';
+import { tesloApi } from '../../api';
+import { ErrorOutline } from '@mui/icons-material';
+import { AuthContext } from '../../context';
+import { useRouter } from 'next/router';
+
+type FormData = {
+  email: string;
+  password: string;
+};
 
 const LoginPage = () => {
+  const { loginUser } = useContext(AuthContext);
+  const router = useRouter();
+  const {
+    register,
+    handleSubmit,
+    watch,
+    formState: { errors },
+  } = useForm<FormData>();
+
+  const [showError, setShowError] = useState(false);
+
+  const onLoginUser = async ({ email, password }: FormData) => {
+    setShowError(false);
+    const isCorrectlyLogged = await loginUser(email, password);
+
+    if (!isCorrectlyLogged) {
+      setShowError(true);
+      setTimeout(() => setShowError(false), 3000);
+      return;
+    }
+
+    router.replace('/');
+
+    // TODO navegar a pantalla anterior o al home
+  };
+
   return (
     <AuthLayout title='Teslo - Login'>
-      <Box
-        sx={{
-          width: '40rem',
-          padding: '2rem 4rem',
-        }}>
-        <Grid container spacing={2}>
-          <Grid item xs={12}>
-            <Typography variant='h1' component='h1'>
-              Iniciar Sesión
-            </Typography>
-          </Grid>
+      <form onSubmit={handleSubmit(onLoginUser)} noValidate>
+        <Box
+          sx={{
+            width: '35rem',
+            padding: '2rem 4rem',
+          }}>
+          <Grid container spacing={2}>
+            <Grid item xs={12}>
+              <Typography variant='h1' component='h1'>
+                Iniciar Sesión
+              </Typography>
 
-          <Grid item xs={12}>
-            <TextField label='Correo' variant='filled' fullWidth />
+              <Chip
+                label='No se encontró una cuenta con esos datos'
+                color='error'
+                icon={<ErrorOutline />}
+                className='fadeIn'
+                sx={{
+                  display: showError ? 'flex' : 'none',
+                }}
+              />
+            </Grid>
+
+            <Grid item xs={12}>
+              <TextField
+                type='email'
+                label='Correo'
+                variant='filled'
+                fullWidth
+                {...register('email', {
+                  required: 'Este Campo es requerido',
+                  validate: validations.isEmail,
+                })}
+                error={!!errors.email}
+                helperText={errors.email?.message}
+              />
+            </Grid>
+            <Grid item xs={12}>
+              <TextField
+                label='Contraseña'
+                type='password'
+                variant='filled'
+                fullWidth
+                {...register('password', {
+                  required: 'Este Campo es requerido',
+                  minLength: {
+                    value: 6,
+                    message: 'La contraseña debe tener al menos 6 caracteres',
+                  },
+                })}
+                error={!!errors.password}
+                helperText={errors.password?.message}
+              />
+            </Grid>
+            <Grid item xs={12}>
+              <Button
+                className='circular-btn'
+                color='secondary'
+                fullWidth
+                size='large'
+                type='submit'
+                variant='contained'>
+                Ingresar
+              </Button>
+            </Grid>
+            <Grid item xs={12} display='flex' justifyContent='flex-end'>
+              <NextLink href='/auth/register' passHref>
+                <Link>¿No tienes cuenta?</Link>
+              </NextLink>
+            </Grid>
           </Grid>
-          <Grid item xs={12}>
-            <TextField label='Contraseña' type='password' variant='filled' fullWidth />
-          </Grid>
-          <Grid item xs={12}>
-            <Button color='secondary'  variant='contained' className='circular-btn' fullWidth>
-              Ingresar
-            </Button>
-          </Grid>
-          <Grid item xs={12} display='flex' justifyContent='flex-end'>
-            <NextLink href='/auth/register' passHref>
-              <Link>¿No tienes cuenta?</Link>
-            </NextLink>
-          </Grid>
-        </Grid>
-      </Box>
+        </Box>
+      </form>
     </AuthLayout>
   );
 };
