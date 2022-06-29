@@ -714,13 +714,13 @@ export const initialData: SeedData = {
     {
         name: 'Carlos Rodriguez',
         email: 'carlos@mail.com',
-        password: hashSync('12345'),
+        password: hashSync('123456'),
         role: 'admin'
     },
     {
         name: 'Hugo Rodriguez',
         email: 'hugo@mail.com',
-        password: hashSync('12345'),
+        password: hashSync('123456'),
         role: 'client'
     }
   ]

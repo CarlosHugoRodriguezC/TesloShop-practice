@@ -8,12 +8,21 @@ import {
   Button,
   Link,
 } from '@mui/material';
-import React from 'react';
+import React, { useContext } from 'react';
 import { CartList, OrderSummary } from '../../components/cart';
 import { ShopLayout } from '../../components/layouts';
 import NextLink from 'next/link';
+import { CartContext } from '../../context';
+import { countries } from '../../utils';
 
 const summary = () => {
+  const { shippingAddress, numberOfItems } = useContext(CartContext);
+  if (!shippingAddress) {
+    return <></>;
+  }
+
+  const { firstName, lastName, address, address2, zip, city, country, phone } =
+    shippingAddress!;
   return (
     <ShopLayout
       title={'Resumen de orden'}
@@ -31,7 +40,7 @@ const summary = () => {
           <Card>
             <CardContent>
               <Typography variant='h2' component='h2'>
-                Resumen (3 productos)
+                Resumen ({numberOfItems} producto {numberOfItems > 1 && 's'})
               </Typography>
               <Divider sx={{ my: 1 }} />
               <Box display='flex' justifyContent='space-between'>
@@ -43,12 +52,16 @@ const summary = () => {
                 </NextLink>
               </Box>
 
-              <Typography>Carlos Rodriguez</Typography>
-              <Typography>Av. Siempre viva 333</Typography>
-              <Typography>Col. Centro</Typography>
-              <Typography>C.P. 12345</Typography>
-              <Typography>Ciudad de México</Typography>
-              <Typography>México</Typography>
+              <Typography>
+                {firstName} {lastName}
+              </Typography>
+              <Typography>
+                {address} {address2 && address2}
+              </Typography>
+              <Typography>C.P. {zip}</Typography>
+              <Typography>{city}</Typography>
+              <Typography>{countries.find(c => c.code === country)?.name}</Typography>
+              <Typography>{phone}</Typography>
 
               <Divider sx={{ my: 1 }} />
               <Box display='flex' justifyContent='flex-end'>

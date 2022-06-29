@@ -1,4 +1,5 @@
 import { FC, PropsWithChildren, useEffect, useReducer } from 'react';
+import { useRouter } from 'next/router';
 import { tesloApi } from '../../api';
 import { IUser } from '../../interfaces';
 import { AuthContext, authReducer } from './';
@@ -17,12 +18,15 @@ const INITIAL_STATE: AuthState = {
 
 export const AuthProvider: FC<PropsWithChildren<{}>> = ({ children }) => {
   const [state, dispatch] = useReducer(authReducer, INITIAL_STATE);
+  const router = useRouter()
+
 
   useEffect(() => {
     checkToken();
   }, []);
 
   const checkToken = async () => {
+    if (!Cookie.get('token')) return;
     try {
       // llamar al endpoint
       const {
@@ -86,9 +90,16 @@ export const AuthProvider: FC<PropsWithChildren<{}>> = ({ children }) => {
       };
     }
   };
+  
+  const logoutUser = () => {
+    Cookie.remove('token');
+    Cookie.remove('cart');
+    // dispatch({ type: '[Auth] - Logout' });
+    router.reload();
+  }
 
   return (
-    <AuthContext.Provider value={{ ...state, loginUser, registerUser }}>
+    <AuthContext.Provider value={{ ...state, loginUser, registerUser, logoutUser }}>
       {children}
     </AuthContext.Provider>
   );

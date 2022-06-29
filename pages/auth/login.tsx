@@ -16,6 +16,7 @@ import { tesloApi } from '../../api';
 import { ErrorOutline } from '@mui/icons-material';
 import { AuthContext } from '../../context';
 import { useRouter } from 'next/router';
+import { useMemo } from 'react';
 
 type FormData = {
   email: string;
@@ -33,6 +34,10 @@ const LoginPage = () => {
   } = useForm<FormData>();
 
   const [showError, setShowError] = useState(false);
+  const registerPath = useMemo(
+    () => (router.query.p ? `/auth/register?p=${router.query.p?.toString()}` : '/auth/register'),
+    [router.query]
+  );
 
   const onLoginUser = async ({ email, password }: FormData) => {
     setShowError(false);
@@ -44,7 +49,9 @@ const LoginPage = () => {
       return;
     }
 
-    router.replace('/');
+    const { query } = router;
+    const destination = query.p?.toString() || '/';
+    router.replace(destination);
 
     // TODO navegar a pantalla anterior o al home
   };
@@ -117,7 +124,9 @@ const LoginPage = () => {
               </Button>
             </Grid>
             <Grid item xs={12} display='flex' justifyContent='flex-end'>
-              <NextLink href='/auth/register' passHref>
+              <NextLink
+                href={registerPath}
+                passHref>
                 <Link>¿No tienes cuenta?</Link>
               </NextLink>
             </Grid>
