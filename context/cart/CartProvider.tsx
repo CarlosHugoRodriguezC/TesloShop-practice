@@ -5,14 +5,28 @@ import { CartContext } from './CartContext';
 import { cartReducer } from './cartReducer';
 
 export interface CartState {
+  isLoaded: boolean;
   cart: ICartProduct[];
   numberOfItems: number;
   subTotal: number;
   tax: number;
   total: number;
+  shippingAddress?: IShippingAddress;
+}
+
+export interface IShippingAddress {
+  firstName: string;
+  lastName: string;
+  address: string;
+  address2?: string;
+  zip: string;
+  city: string;
+  country: string;
+  phone: string;
 }
 
 export const CART_INITIAL_STATE: CartState = {
+  isLoaded: false,
   cart: [],
   numberOfItems: 0,
   subTotal: 0,
@@ -41,6 +55,22 @@ export const CartProvider: FC<PropsWithChildren<{}>> = ({ children }) => {
       });
     }
     setFirstCharge(false);
+  }, []);
+
+  useEffect(() => {
+    if (Cookie.get('firstName')) {
+      const address: IShippingAddress = {
+        firstName: Cookie.get('firstName') || '',
+        lastName: Cookie.get('lastName') || '',
+        address: Cookie.get('address') || '',
+        address2: Cookie.get('address2') || '',
+        zip: Cookie.get('zip') || '',
+        city: Cookie.get('city') || '',
+        country: Cookie.get('country') || '',
+        phone: Cookie.get('phone') || '',
+      };
+      dispatch({ type: '[Cart] Load address from cookies', payload: address });
+    }
   }, []);
 
   useEffect(() => {
@@ -111,6 +141,19 @@ export const CartProvider: FC<PropsWithChildren<{}>> = ({ children }) => {
     });
   };
 
+  const updateAddress = (address: IShippingAddress) => {
+    Cookie.set('firstName', address.firstName);
+    Cookie.set('lastName', address.lastName);
+    Cookie.set('address', address.address);
+    Cookie.set('address2', address.address2 || '');
+    Cookie.set('zip', address.zip);
+    Cookie.set('city', address.city);
+    Cookie.set('country', address.country);
+    Cookie.set('phone', address.phone);
+
+    dispatch({ type: '[Cart] Update address', payload: address });
+  };
+
   return (
     <CartContext.Provider
       value={{
@@ -118,6 +161,7 @@ export const CartProvider: FC<PropsWithChildren<{}>> = ({ children }) => {
         addProductToCart,
         updateQuantityOfProduct,
         removeProductFromCart,
+        updateAddress,
       }}>
       {children}
     </CartContext.Provider>

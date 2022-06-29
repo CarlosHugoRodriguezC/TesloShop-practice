@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import NextLink from 'next/link';
 import {
   Box,
@@ -34,6 +34,10 @@ const RegisterPage = () => {
   } = useForm<FormData>();
   const [showError, setShowError] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
+  const loginPath = useMemo(
+    () => (router.query.p ? `/auth/login?p=${router.query.p?.toString()}` : '/auth/login'),
+    [router.query]
+  );
 
   const onRegister = async (registerData: FormData) => {
     setShowError(false);
@@ -48,7 +52,9 @@ const RegisterPage = () => {
       return;
     }
 
-    router.replace('/');
+    const { query } = router;
+    const destination = query.p?.toString() || '/';
+    router.replace(destination);
   };
 
   return (
@@ -127,7 +133,7 @@ const RegisterPage = () => {
               </Button>
             </Grid>
             <Grid item xs={12} display='flex' justifyContent='flex-end'>
-              <NextLink href='/auth/login' passHref>
+              <NextLink href={loginPath} passHref>
                 <Link>¿Ya tienes cuenta?</Link>
               </NextLink>
             </Grid>
