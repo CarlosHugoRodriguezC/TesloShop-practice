@@ -47,9 +47,14 @@ const AddressPage = () => {
     register,
     formState: { errors },
     setValue,
+    reset,
   } = useForm<FormData>({
     defaultValues: getAddresFromCookies(),
   });
+
+  useEffect(() => {
+    reset(getAddresFromCookies());
+  }, [reset]);
 
   const onSubmit = (data: FormData) => {
     updateAddress(data);
@@ -127,22 +132,25 @@ const AddressPage = () => {
             />
           </Grid>
           <Grid item xs={12} sm={6}>
-            <FormControl fullWidth>
+            {/* <FormControl fullWidth> */}
               <TextField
                 key={Cookies.get('country') || countries[0].code}
-                select
+                // select
                 label='País'
+                fullWidth
                 variant='filled'
-                defaultValue={ Cookies.get('country') || countries[0].code}
+                defaultValue={ countries[0].code}
                 {...register('country', { required: 'El campo es requerido' })}
-                error={errors.country !== undefined}>
+                error={errors.country !== undefined}
+                helperText={errors.country && errors.country.message}
+                >
                 {countries.map((country, index) => (
                   <MenuItem key={country.code} value={country.code}>
                     {country.name}
                   </MenuItem>
                 ))}
               </TextField>
-            </FormControl>
+            {/* </FormControl> */}
           </Grid>
           <Grid item xs={12} sm={6}>
             <TextField
