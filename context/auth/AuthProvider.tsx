@@ -5,6 +5,7 @@ import { IUser } from '../../interfaces';
 import { AuthContext, authReducer } from './';
 import Cookie from 'js-cookie';
 import axios from 'axios';
+import { signOut, useSession } from 'next-auth/react';
 
 export interface AuthState {
   isLoggedIn: boolean;
@@ -18,12 +19,19 @@ const INITIAL_STATE: AuthState = {
 
 export const AuthProvider: FC<PropsWithChildren<{}>> = ({ children }) => {
   const [state, dispatch] = useReducer(authReducer, INITIAL_STATE);
-  const router = useRouter()
-
+  const { status, data } = useSession();
+  const router = useRouter();
 
   useEffect(() => {
-    checkToken();
-  }, []);
+    if (status === 'authenticated') {
+      dispatch({ type: '[Auth] - Login', payload: (data as any)?.user as IUser });
+      // TODO: Check if this is the right way to do this
+    }
+  }, [status]);
+
+  // useEffect(() => {
+  //   checkToken();
+  // }, []);
 
   const checkToken = async () => {
     if (!Cookie.get('token')) return;
@@ -90,16 +98,26 @@ export const AuthProvider: FC<PropsWithChildren<{}>> = ({ children }) => {
       };
     }
   };
-  
+
   const logoutUser = () => {
-    Cookie.remove('token');
+    // Cookie.remove('token');
     Cookie.remove('cart');
-    // dispatch({ type: '[Auth] - Logout' });
-    router.reload();
-  }
+    Cookie.remove('firstName');
+    Cookie.remove('lastName');
+    Cookie.remove('address');
+    Cookie.remove('address2');
+    Cookie.remove('zip');
+    Cookie.remove('city');
+    Cookie.remove('country');
+    Cookie.remove('phone');
+    
+    // router.reload();
+    signOut();
+  };
 
   return (
-    <AuthContext.Provider value={{ ...state, loginUser, registerUser, logoutUser }}>
+    <AuthContext.Provider
+      value={{ ...state, loginUser, registerUser, logoutUser }}>
       {children}
     </AuthContext.Provider>
   );

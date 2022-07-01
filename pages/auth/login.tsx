@@ -1,9 +1,12 @@
-import React, { useContext, useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import { GetServerSideProps } from 'next';
 import NextLink from 'next/link';
+import { getSession, signIn, getProviders } from 'next-auth/react';
 import {
   Box,
   Button,
   Chip,
+  Divider,
   Grid,
   Link,
   TextField,
@@ -12,9 +15,7 @@ import {
 import { useForm } from 'react-hook-form';
 import { AuthLayout } from '../../components/layouts';
 import { validations } from '../../utils';
-import { tesloApi } from '../../api';
 import { ErrorOutline } from '@mui/icons-material';
-import { AuthContext } from '../../context';
 import { useRouter } from 'next/router';
 import { useMemo } from 'react';
 
@@ -24,7 +25,7 @@ type FormData = {
 };
 
 const LoginPage = () => {
-  const { loginUser } = useContext(AuthContext);
+  // const { loginUser } = useContext(AuthContext);
   const router = useRouter();
   const {
     register,
@@ -34,26 +35,37 @@ const LoginPage = () => {
   } = useForm<FormData>();
 
   const [showError, setShowError] = useState(false);
+
+  const [providers, setProviders] = useState<any>({});
+
+  useEffect(() => {
+    getProviders().then((prov) => {
+      setProviders(prov);
+    });
+  }, []);
+
   const registerPath = useMemo(
-    () => (router.query.p ? `/auth/register?p=${router.query.p?.toString()}` : '/auth/register'),
+    () =>
+      router.query.p
+        ? `/auth/register?p=${router.query.p?.toString()}`
+        : '/auth/register',
     [router.query]
   );
 
   const onLoginUser = async ({ email, password }: FormData) => {
     setShowError(false);
-    const isCorrectlyLogged = await loginUser(email, password);
+    // const isCorrectlyLogged = await loginUser(email, password);
 
-    if (!isCorrectlyLogged) {
-      setShowError(true);
-      setTimeout(() => setShowError(false), 3000);
-      return;
-    }
+    // if (!isCorrectlyLogged) {
+    //   setShowError(true);
+    //   setTimeout(() => setShowError(false), 3000);
+    //   return;
+    // }
 
-    const { query } = router;
-    const destination = query.p?.toString() || '/';
-    router.replace(destination);
-
-    // TODO navegar a pantalla anterior o al home
+    // const { query } = router;
+    // const destination = query.p?.toString() || '/';
+    // router.replace(destination);
+    signIn('credentials', { email, password });
   };
 
   return (
@@ -124,17 +136,69 @@ const LoginPage = () => {
               </Button>
             </Grid>
             <Grid item xs={12} display='flex' justifyContent='flex-end'>
-              <NextLink
-                href={registerPath}
-                passHref>
+              <NextLink href={registerPath} passHref>
                 <Link>¿No tienes cuenta?</Link>
               </NextLink>
+            </Grid>
+            <Grid
+              item
+              xs={12}
+              display='flex'
+              justifyContent='center'
+              flexDirection='column'>
+              <Divider
+                sx={{
+                  width: '100%',
+                  mb: 2,
+                }}
+              />
+              {Object.values(providers).map(
+                (provider: any) =>
+                  provider.id !== 'credentials' && (
+                    <Button
+                      key={provider.id}
+                      variant='outlined'
+                      fullWidth
+                      color='primary'
+                      size='large'
+                      sx={{ mb: 1, borderRadius: 50 }}
+                      onClick={() => signIn(provider.id)}>
+                      {provider.name}
+                    </Button>
+                  )
+              )}
             </Grid>
           </Grid>
         </Box>
       </form>
     </AuthLayout>
   );
+};
+
+// You should use getServerSideProps when:
+// - Only if you need to pre-render a page whose data must be fetched at request time
+
+export const getServerSideProps: GetServerSideProps = async ({
+  req,
+  query,
+}) => {
+  // const { data } = await  // your fetch function here
+  const session = await getSession({ req });
+
+  const { p = '/' } = query;
+
+  if (session) {
+    return {
+      redirect: {
+        destination: p.toString(),
+        permanent: false,
+      },
+    };
+  }
+
+  return {
+    props: {},
+  };
 };
 
 export default LoginPage;
