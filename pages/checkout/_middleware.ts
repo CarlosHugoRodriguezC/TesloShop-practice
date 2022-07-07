@@ -4,7 +4,7 @@ import { NextFetchEvent, NextRequest, NextResponse } from 'next/server';
 
 export async function middleware(req: NextRequest, ev: NextFetchEvent) {
   const session = await getToken({ req, secret: process.env.NEXTAUTH_SECRET });
-  console.log('session', session);
+  // console.log('session', session);
 
   if (!session)
     return NextResponse.redirect(

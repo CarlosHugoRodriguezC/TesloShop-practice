@@ -37,11 +37,11 @@ const ProductPage: NextPage<Props> = ({ product }) => {
     setTempCartProduct((current) => ({ ...current, size }));
   };
   const onUpdatedValue = (value: number) => {
-    console.log(value, product.inStock);
+    // console.log(value, product.inStock);
     setTempCartProduct((current) => ({ ...current, quantity: value }));
   };
   const onAddProduct = () => {
-    console.log(tempCartProduct);
+    // console.log(tempCartProduct);
     if (!tempCartProduct.size) return;
     addProductToCart(tempCartProduct);
     router.push('/cart');
