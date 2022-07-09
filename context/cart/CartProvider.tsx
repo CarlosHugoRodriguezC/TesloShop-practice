@@ -1,8 +1,10 @@
 import React, { FC, PropsWithChildren, useEffect, useReducer } from 'react';
 import Cookie from 'js-cookie';
-import { ICartProduct } from '../../interfaces';
+import { ICartProduct, IOrder, IShippingAddress } from '../../interfaces';
 import { CartContext } from './CartContext';
 import { cartReducer } from './cartReducer';
+import tesloApi from '../../api/tesloApi';
+import axios from 'axios';
 
 export interface CartState {
   isLoaded: boolean;
@@ -12,17 +14,6 @@ export interface CartState {
   tax: number;
   total: number;
   shippingAddress?: IShippingAddress;
-}
-
-export interface IShippingAddress {
-  firstName: string;
-  lastName: string;
-  address: string;
-  address2?: string;
-  zip: string;
-  city: string;
-  country: string;
-  phone: string;
 }
 
 export const CART_INITIAL_STATE: CartState = {
@@ -154,6 +145,42 @@ export const CartProvider: FC<PropsWithChildren<{}>> = ({ children }) => {
     dispatch({ type: '[Cart] Update address', payload: address });
   };
 
+  const createOrder = async (): Promise<{
+    hasError: boolean;
+    message: string;
+  }> => {
+    if (!state.shippingAddress) {
+      throw new Error('No shipping address');
+    }
+
+    const body: IOrder = {
+      orderItems: state.cart.map((item) => ({ ...item, size: item.size! })),
+      shippingAddress: state.shippingAddress,
+      numberOfItems: state.numberOfItems,
+      subTotal: state.subTotal,
+      tax: state.tax,
+      total: state.total,
+      isPaid: false,
+    };
+
+    try {
+      const { data } = await tesloApi.post('/orders', body);
+      // console.log(data);
+      // TODO dispatch
+      dispatch({ type: '[Cart] Order Completed'});
+      return { hasError: false, message: data._id! };
+    } catch (error) {
+      console.log(error);
+      if (axios.isAxiosError(error)) {
+        return {
+          hasError: true,
+          message: (error as any).response?.data.message,
+        };
+      }
+      return { hasError: true, message: 'Unknown error' };
+    }
+  };
+
   return (
     <CartContext.Provider
       value={{
@@ -162,6 +189,7 @@ export const CartProvider: FC<PropsWithChildren<{}>> = ({ children }) => {
         updateQuantityOfProduct,
         removeProductFromCart,
         updateAddress,
+        createOrder,
       }}>
       {children}
     </CartContext.Provider>

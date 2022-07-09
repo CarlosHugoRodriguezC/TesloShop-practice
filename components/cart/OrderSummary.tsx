@@ -3,10 +3,17 @@ import { FC, useContext } from 'react';
 import { CartContext } from '../../context';
 import {currency} from '../../utils';
 
-interface Props {}
+interface Props {
+  orderSummary ? : {
+    numberOfItems: number;
+    subTotal: number;
+    tax: number;
+    total: number;
+  }
+}
 
-export const OrderSummary: FC<Props> = () => {
-  const { numberOfItems, subTotal, tax, total } = useContext(CartContext);
+export const OrderSummary: FC<Props> = ( { orderSummary }) => {
+  const { numberOfItems, subTotal, tax, total } = orderSummary || useContext(CartContext);
   const taxRate = Number(process.env.NEXT_PUBLIC_TAX_RATE || 0);
   return (
     <Grid container spacing={2}>

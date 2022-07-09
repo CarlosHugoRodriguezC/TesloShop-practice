@@ -12,9 +12,11 @@ import { ItemCounter } from '../ui';
 import { Button } from '@mui/material';
 import { CartContext } from '../../context';
 import { ICartProduct } from '../../interfaces';
+import { IOrderItem } from '../../interfaces/order';
 
 interface Props {
   editable?: boolean;
+  products?: IOrderItem[];
 }
 
 // const ProductsInCard = [
@@ -23,7 +25,7 @@ interface Props {
 //   initialData.products[2],
 // ];
 
-export const CartList: FC<Props> = ({ editable = false }) => {
+export const CartList: FC<Props> = ({ editable = false, products }) => {
   const {
     cart,
     updateQuantityOfProduct,
@@ -35,10 +37,16 @@ export const CartList: FC<Props> = ({ editable = false }) => {
     updateQuantityOfProduct(product);
   };
 
+  const productsToShow = products || cart;
+
   return (
     <>
-      {cart.map((product, index) => (
-        <Grid container key={product.slug + product.size} spacing={2} sx={{ mb: 3 }}>
+      {productsToShow.map((product, index) => (
+        <Grid
+          container
+          key={product.slug + product.size}
+          spacing={2}
+          sx={{ mb: 3 }}>
           <Grid item xs={3}>
             <NextLink href={`/product/${product.slug}`} passHref>
               <Link>
@@ -80,12 +88,14 @@ export const CartList: FC<Props> = ({ editable = false }) => {
             alignItems='center'
             flexDirection='column'>
             <Typography variant='subtitle1'>${product.price}</Typography>
-            <Button
-              color='secondary'
-              variant='text'
-              onClick={() => onRemoveCartProduct(product)}>
-              Remover
-            </Button>
+            {editable && (
+              <Button
+                color='secondary'
+                variant='text'
+                onClick={() => onRemoveCartProduct(product)}>
+                Remover
+              </Button>
+            )}
           </Grid>
         </Grid>
       ))}
