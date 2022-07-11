@@ -19,7 +19,7 @@ import Cookies from 'js-cookie';
 import { useRouter } from 'next/router';
 import { color } from '@mui/system';
 
-const summary = () => {
+const Summary = () => {
   const router = useRouter();
   const { shippingAddress, numberOfItems, createOrder } =
     useContext(CartContext);
@@ -133,4 +133,4 @@ const summary = () => {
   );
 };
 
-export default summary;
+export default Summary;
