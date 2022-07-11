@@ -13,7 +13,8 @@ interface Props {
 }
 
 export const OrderSummary: FC<Props> = ( { orderSummary }) => {
-  const { numberOfItems, subTotal, tax, total } = orderSummary || useContext(CartContext);
+  let summary =  useContext(CartContext);
+  const { numberOfItems, subTotal, tax, total } = orderSummary || summary;
   const taxRate = Number(process.env.NEXT_PUBLIC_TAX_RATE || 0);
   return (
     <Grid container spacing={2}>
