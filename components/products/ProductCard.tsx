@@ -23,8 +23,8 @@ export const ProductCard: FC<Props> = ({ product }) => {
   const productImage = useMemo(
     () =>
       isHovered
-        ? `/products/${product.images[1]}`
-        : `/products/${product.images[0]}`,
+        ? `${product.images[1]}`
+        : `${product.images[0]}`,
     [isHovered, product.images]
   );
 

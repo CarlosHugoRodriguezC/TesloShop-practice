@@ -1,4 +1,3 @@
-import { json } from 'stream/consumers';
 import { db } from '.';
 import { IProduct } from '../interfaces';
 import { Product } from '../models';
@@ -13,6 +12,13 @@ export const getProductBySlug = async (
   if (!product) {
     return null;
   }
+
+  // TODO proces the images
+  product.images = product.images.map((image) => {
+    return image.includes('http')
+      ? image
+      : `${process.env.HOST_NAME || ''}products/${image}`;
+  });
 
   return JSON.parse(JSON.stringify(product));
 };
@@ -39,16 +45,31 @@ export const getProductsByTerm = async (term: string): Promise<IProduct[]> => {
     .lean();
   await db.disconnect();
 
-  return products;
+  return products.map((product) => ({
+    ...product,
+    images: product.images.map((image) =>
+      image.includes('http')
+        ? image
+        : `${process.env.HOST_NAME || ''}products/${image}`
+    ),
+  }));
 };
-
 
 export const getAllProducts = async (): Promise<IProduct[]> => {
   await db.connect();
-  const products = await Product.find()
-    // .select('title images price inStock slug -_id')
-    .lean();
+  const products = await Product.find().lean();
   await db.disconnect();
 
-  return JSON.parse(JSON.stringify(products));
-}
+  return JSON.parse(
+    JSON.stringify(
+      products.map((product) => ({
+        ...product,
+        images: product.images.map((image) =>
+          image.includes('http')
+            ? image
+            : `${process.env.HOST_NAME || ''}products/${image}`
+        ),
+      }))
+    )
+  );
+};

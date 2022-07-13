@@ -12,7 +12,17 @@ export const getOrderById = async (id: string): Promise<IOrder | null> => {
 
   if (!order) return null;
 
-  return JSON.parse(JSON.stringify(order));
+  return JSON.parse(
+    JSON.stringify({
+      ...order,
+      orderItems: order.orderItems.map((item) => ({
+        ...item,
+        image: item.image.includes('http')
+          ? item.image
+          : `${process.env.HOST_NAME || ''}products/${item.image}`,
+      })),
+    })
+  );
 };
 
 export const getOrdersByUser = async (userId: string): Promise<IOrder[]> => {
@@ -23,4 +33,4 @@ export const getOrdersByUser = async (userId: string): Promise<IOrder[]> => {
   await db.disconnect();
 
   return JSON.parse(JSON.stringify(orders));
-}
+};

@@ -44,7 +44,16 @@ const getProducts = async (req: NextApiRequest, res: NextApiResponse<Data>) => {
 
     await db.disconnect();
 
-    res.status(200).json(products);
+    res.status(200).json(
+      products.map((product) => ({
+        ...product,
+        images: product.images.map((image) =>
+          image.includes('http')
+            ? image
+            : `${process.env.HOST_NAME || ''}products/${image}`
+        ),
+      }))
+    );
   } catch (error) {
     db.disconnect();
     return res.status(500).json({ message: `Something went wrong: ${error}` });

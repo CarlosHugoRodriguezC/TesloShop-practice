@@ -9,7 +9,10 @@ type Data =
     }
   | IProduct;
 
-export default function handler (req: NextApiRequest, res: NextApiResponse<Data>) {
+export default function handler(
+  req: NextApiRequest,
+  res: NextApiResponse<Data>
+) {
   switch (req.method) {
     case 'GET':
       return getProduct(req, res);
@@ -27,8 +30,7 @@ const getProduct = async (req: NextApiRequest, res: NextApiResponse<Data>) => {
   try {
     db.connect();
 
-    const product = await Product.findOne({ slug })
-      .lean();
+    const product = await Product.findOne({ slug }).lean();
 
     if (!product) {
       db.disconnect();
@@ -37,7 +39,16 @@ const getProduct = async (req: NextApiRequest, res: NextApiResponse<Data>) => {
 
     db.disconnect();
 
-    return res.status(200).json(product);
+    return res
+      .status(200)
+      .json({
+        ...product,
+        images: product.images.map((image) =>
+          image.includes('http')
+            ? image
+            : `${process.env.HOST_NAME || ''}products/${image}`
+        ),
+      });
   } catch (error) {
     db.disconnect();
     return res.status(500).json({ message: `Something went wrong: ${error}` });
